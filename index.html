@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MediRoute Pro aide les utilisateurs a trouver les hopitaux proches et a lancer un itineraire GPS."
+    />
+    <title>MediRoute Pro | Hopitaux proches et itineraire GPS</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-frame">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="MediRoute Pro">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+          </span>
+          <span>
+            <strong>MediRoute Pro</strong>
+            <small>Acces hospitalier intelligent</small>
+          </span>
+        </a>
+
+        <div class="topbar-actions">
+          <span class="signal-pill" id="dataStatus">
+            <i data-lucide="database"></i>
+            OpenStreetMap
+          </span>
+          <a class="emergency-link" href="tel:112">
+            <i data-lucide="siren"></i>
+            Urgence 112
+          </a>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="search-panel" aria-label="Recherche d'hopitaux">
+          <div class="panel-heading">
+            <p class="eyebrow">Recherche locale</p>
+            <h1>Hopitaux a proximite</h1>
+          </div>
+
+          <form class="search-box" id="searchForm">
+            <label class="input-shell" for="placeInput">
+              <i data-lucide="map-pin"></i>
+              <input
+                id="placeInput"
+                name="place"
+                type="search"
+                autocomplete="street-address"
+                placeholder="Ville, quartier, adresse"
+              />
+            </label>
+            <button class="primary-btn" type="submit">
+              <i data-lucide="search"></i>
+              Rechercher
+            </button>
+          </form>
+
+          <div class="quick-actions">
+            <button class="secondary-btn" type="button" id="locateBtn">
+              <i data-lucide="navigation"></i>
+              Ma position
+            </button>
+            <button class="ghost-btn" type="button" id="exportBtn">
+              <i data-lucide="download"></i>
+              Export CSV
+            </button>
+          </div>
+
+          <div class="control-grid" aria-label="Parametres de recherche">
+            <label class="range-control" for="radiusRange">
+              <span>Rayon</span>
+              <strong><span id="radiusValue">12</span> km</strong>
+              <input id="radiusRange" type="range" min="2" max="50" step="1" value="12" />
+            </label>
+
+            <label class="select-control" for="sortSelect">
+              <span>Tri</span>
+              <select id="sortSelect">
+                <option value="distance">Distance</option>
+                <option value="name">Nom</option>
+                <option value="emergency">Urgence</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="segmented" role="tablist" aria-label="Type d'etablissement">
+            <button class="segment is-active" type="button" data-filter="all">
+              <i data-lucide="layout-list"></i>
+              Tous
+            </button>
+            <button class="segment" type="button" data-filter="hospital">
+              <i data-lucide="hospital"></i>
+              Hopitaux
+            </button>
+            <button class="segment" type="button" data-filter="clinic">
+              <i data-lucide="stethoscope"></i>
+              Cliniques
+            </button>
+            <button class="segment" type="button" data-filter="emergency">
+              <i data-lucide="ambulance"></i>
+              Urgence
+            </button>
+          </div>
+
+          <label class="toggle-row" for="openToggle">
+            <span>
+              <strong>Prioriser 24/7</strong>
+              <small>Ouverture continue quand disponible</small>
+            </span>
+            <input id="openToggle" type="checkbox" />
+          </label>
+
+          <div class="status-card" id="statusCard">
+            <i data-lucide="activity"></i>
+            <span>Zone initiale chargee</span>
+          </div>
+        </section>
+
+        <section class="map-panel" aria-label="Carte des hopitaux">
+          <div class="map-header">
+            <div>
+              <p class="eyebrow">Carte operationnelle</p>
+              <h2 id="regionTitle">Casablanca</h2>
+            </div>
+            <a class="map-link" id="openMapLink" href="https://www.openstreetmap.org" target="_blank" rel="noreferrer">
+              <i data-lucide="external-link"></i>
+              OSM
+            </a>
+          </div>
+
+          <div class="map-visual" id="mapVisual">
+            <div class="map-grid" aria-hidden="true"></div>
+            <div class="road road-one" aria-hidden="true"></div>
+            <div class="road road-two" aria-hidden="true"></div>
+            <div class="road road-three" aria-hidden="true"></div>
+            <div class="origin-marker" id="originMarker" title="Point de depart">
+              <i data-lucide="crosshair"></i>
+            </div>
+            <div class="markers-layer" id="markersLayer"></div>
+          </div>
+
+          <div class="metrics-row" aria-label="Indicateurs">
+            <article>
+              <span id="resultCount">0</span>
+              <small>Resultats</small>
+            </article>
+            <article>
+              <span id="nearestDistance">--</span>
+              <small>Plus proche</small>
+            </article>
+            <article>
+              <span id="emergencyCount">0</span>
+              <small>Urgence</small>
+            </article>
+            <article>
+              <span id="avgDistance">--</span>
+              <small>Distance moy.</small>
+            </article>
+          </div>
+        </section>
+
+        <aside class="results-panel" aria-label="Liste des hopitaux">
+          <div class="results-header">
+            <div>
+              <p class="eyebrow">Etablissements</p>
+              <h2>Selection</h2>
+            </div>
+            <span class="small-pill" id="sourcePill">Demo</span>
+          </div>
+
+          <div class="results-list" id="resultsList"></div>
+        </aside>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
